@@ -13,9 +13,7 @@ export const register = (password, email) => {
       "email": email 
     })
   })
-  .then((response) => {
-    return response.json();
-  })
+  .then(res => getResponseData(res))
 }; 
 
 export const authorize = (email, password) => {
@@ -30,14 +28,7 @@ export const authorize = (email, password) => {
       "email": email
     })
   })
-  .then((response => response.json()))
-  .then((res) => {
-    if (res.token){
-      localStorage.setItem('jwt', res.token);
-      return res;
-    }
-  })
-  .catch(err => console.log(err))
+  .then(res => getResponseData(res))
 };
 
 export const checkToken = (token) => {
@@ -49,6 +40,12 @@ export const checkToken = (token) => {
       'Authorization': `Bearer ${token}`,
     }
   })
-  .then(res => res.json())
-  .then(data => data)
+  .then(res => getResponseData(res))
 }
+
+function getResponseData(res) {
+  if (!res.ok) {
+      return Promise.reject(`Ошибка: ${res.status}`); 
+  }
+  return res.json();
+} 

@@ -10,6 +10,7 @@ import EditAvatarPopup from './EditAvatarPopup.js'
 import AddPlacePopup from './AddPlacePopup.js'
 import Login from './login.js'
 import Register from './Register'
+import Header from './Header';
 import InfoTooltip from './InfoTooltip.js'
 import ProtectedRouteElement from './ProtectedRoute';
 import imgTooltipOk from '../images/popup/popup-status-ok.svg';
@@ -24,9 +25,10 @@ function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState({});
-  const [infoTooltipOk, setInfoTooltipOk] = useState(false);
-  const [infoTooltipErr, setInfoTooltipErr] = useState(false);
-  const [userEmail,setUserEmail] = useState({})
+
+  const [infoTooltipMessage, setInfoTooltipMessage] = useState({});
+  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false); 
+  const [userEmail, setUserEmail] = useState('')
 
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
@@ -41,7 +43,8 @@ function App() {
   }, [])
 
   const handleTokenCheck = () => {
-    if (localStorage.getItem('jwt')){
+    const token = localStorage.getItem('jwt') 
+    if (token){
       const jwt = localStorage.getItem('jwt');
       auth.checkToken(jwt)
         .then((res) => {
@@ -50,25 +53,38 @@ function App() {
             setLoggedIn(true);
             navigate("/cards", {replace: true})
           }
-      });
+        })
+        .catch((err)=> console.log(`catch: ${err}`))
     }
   }
 
   function handleRegistrationStatusOk(){
-    setInfoTooltipOk(true)
+    setInfoTooltipMessage({
+        text: "Вы успешно зарегистрировались!",
+        icon: imgTooltipOk,
+        altIcon: "Изображение выполненного статуса регистрации"
+    })
+    setIsInfoTooltipOpen(true)
   }
   function handleRegistrationStatusErr(){
-    setInfoTooltipErr(true)
+    setInfoTooltipMessage({
+      text: "Что-то пошло не так! Попробуйте ещё раз.",
+      icon: imgTooltipErr,
+      altIcon: "Изображение невыполненного статуса регистрации"
+    })
+    setIsInfoTooltipOpen(true)
   }
 
   useEffect(() => {
-    api.getAppInfo()
+    if(loggedIn){
+      api.getAppInfo()
       .then(([cards, userData])=>{
         setCards(cards)
         setCurrentUser(userData)
       })
       .catch((err)=> console.log(`catch: ${err}`))
-  },[]);
+    }
+  },[loggedIn]);
 
   function handleEditAvatarClick (){
     setIsEditAvatarPopupOpen(true)
@@ -89,8 +105,7 @@ function App() {
     setIsEditProfilePopupOpen(false)
     setIsAddPlacePopupOpen(false)
     setSelectedCard({})
-    setInfoTooltipOk(false)
-    setInfoTooltipErr(false)
+    setIsInfoTooltipOpen(false)
   }
 
   function handleCardLike(card){
@@ -111,7 +126,7 @@ function App() {
   function handleCardDelete(card){
     api.deleteCard(card._id)
     .then((newCard) => {
-      setCards((state) => state.filter((c) => c._id != card._id));
+      setCards((state) => state.filter((c) => c._id === card._id));
     })
     .catch((err)=> console.log(`catch: ${err}`))
   }
@@ -126,7 +141,7 @@ function App() {
   }
 
   function handleUpdateAvatar(data){
-    api.userAvatar(data)
+    api.updateUserAvatar(data)
     .then((res) => {
       setCurrentUser(res)
       closeAllPopups()
@@ -143,9 +158,25 @@ function App() {
     .catch((err)=> console.log(`catch: ${err}`))
   }
 
+  function handleLogout (){
+    setUserEmail('')
+    setLoggedIn(false)
+    navigate('/login')
+    localStorage.removeItem('jwt')
+  }
+
+  function recordUsersMail (mail){
+    setUserEmail(mail)
+  }
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
+        <Header 
+          loggedIn={loggedIn}
+          email={userEmail}
+          logout={handleLogout}
+        />
         <Routes>
           <Route path="/cards" element={
             <ProtectedRouteElement
@@ -165,26 +196,21 @@ function App() {
           <Route path="/register" element={
             <Register
               loggedIn={loggedIn}
-              onfoTooltipOk={handleRegistrationStatusOk}
-              infoTooltipErr={handleRegistrationStatusErr}/>
+              setInfoTooltipOk={handleRegistrationStatusOk}
+              setInfoTooltipErr={handleRegistrationStatusErr}/>
           } />
           <Route path="/login" element={
-            <Login loggedIn={loggedIn} handleLogin={handleLogin}/>
+            <Login
+            handleLogin={handleLogin}
+            userEmail={recordUsersMail}
+            />
           } />
           <Route path="*" element={loggedIn ? <Navigate to="/cards" replace /> : <Navigate to="/login" replace />} />
         </Routes>
-      <InfoTooltip 
-        isOpen={infoTooltipOk} 
-        onClose={closeAllPopups} 
-        img={imgTooltipOk}
-        imgAlt={'Изображение успешного статуса регистрации'}
-        titleStatus={'Вы успешно зарегистрировались!'}/>
       <InfoTooltip
-        isOpen={infoTooltipErr} 
+        isOpen={isInfoTooltipOpen} 
         onClose={closeAllPopups}
-        img={imgTooltipErr}
-        imgAlt={'Изображение успешного статуса регистрации'}
-        titleStatus={'Что-то пошло не так! Попробуйте ещё раз.'}/>
+        message={infoTooltipMessage}/>
       <ImagePopup 
       card={selectedCard} 
       onClose={closeAllPopups}

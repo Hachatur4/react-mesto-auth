@@ -59,7 +59,7 @@ class Api {
     .then(res => this._checkResStatus(res))
   }
 
-  userAvatar(data){
+  updateUserAvatar(data){
     return fetch(`${this._options.baseUrl}/users/me/avatar`, {
       method: 'PATCH',
       headers: {

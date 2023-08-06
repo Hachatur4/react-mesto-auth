@@ -1,40 +1,33 @@
-import React from 'react';
+import {useState, useEffect} from 'react';
 import PopupWithForm from './PopupWithForm.js'
-import {CurrentUserContext} from '../contexts/CurrentUserContext'
 
-function EditAvatarPopup(props) {
+function EditAvatarPopup({isOpen, onClose, onUpdateAvatar}) {
 
-  const currentUser = React.useContext(CurrentUserContext);
-  const [avatar, setAvatar] = React.useState('');
-  const avatarRef = React.useRef();
+  const [value, setValue] = useState('');
 
-  React.useEffect(() => {
-    setAvatar(currentUser.avatar);
-  }, [currentUser]); 
-
-  function handleChange() {
-    setAvatar(avatarRef.current.value);
+  function handleChange (e) {
+    setValue(e.target.value);
   }
 
   function handleSubmit(e) {
     e.preventDefault();
   
-    props.onUpdateAvatar({
-      avatar: avatar,
+    onUpdateAvatar({
+      avatar: value,
     });
   }
 
-  React.useEffect(() => {
-    avatarRef.current.value = ''
-  }, [props.isOpen]); 
+  useEffect(() => {
+    setValue('')
+  }, [isOpen]); 
   
   return (
       <PopupWithForm 
       name='changeAvatar' 
       title='Обновить аватар' 
       buttonTitle='Сохранить'
-      isOpen={props.isOpen}
-      onClose={props.onClose}
+      isOpen={isOpen}
+      onClose={onClose}
       onSubmit={handleSubmit}>
           <label className="form__field">
             <input
@@ -44,7 +37,7 @@ function EditAvatarPopup(props) {
               className="form__input form-avatar__input"
               placeholder="Ссылка на изображение"
               required
-              ref={avatarRef}
+              value={value}
               onChange={handleChange}
             />
             <span className="form__input-error avatar-input-error"></span>

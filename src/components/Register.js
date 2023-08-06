@@ -1,8 +1,8 @@
 import React from 'react';
-import Header from './Header.js'
 import { Link, useNavigate } from 'react-router-dom';
 import * as auth from '../utils/auth.js';
-function Register(props) {
+
+function Register({setInfoTooltipOk, setInfoTooltipErr, }) {
   
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
@@ -26,18 +26,16 @@ function Register(props) {
     .then((res)=>{
       setEmail('')
       setPassword('')
-      props.onfoTooltipOk()
+      setInfoTooltipOk()
       navigate('/login')
     })
     .catch((err)=>{
-      props.infoTooltipErr()
+      setInfoTooltipErr()
       console.log(err.message)
     })
   }
 
   return (
-    <>
-      <Header loggedIn={props.loggedIn} linkTitle={'Вход'} link={'login'}/>
       <div className="signInPage signInPage_opened">
         <div className="signIn__container">
           <h3 className="signIn___title">Регистрация</h3>
@@ -73,7 +71,7 @@ function Register(props) {
               />
               <span className="form__input-error job-input-error"></span>
             </label>
-              <button type="submit" className={`form__submit-button-log-reg form-${props.name}-button-log-reg`}>
+              <button type="submit" className={`form__submit-button-log-reg`}>
               Зарегестрироваться
               </button>
             </fieldset>
@@ -81,7 +79,6 @@ function Register(props) {
           </form>
         </div>
       </div>
-    </>
   );
 } 
 

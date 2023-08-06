@@ -1,7 +1,7 @@
 import React from 'react';
 import PopupWithForm from './PopupWithForm.js'
 
-function AddPlacePopup(props) {
+function AddPlacePopup({isOpen, onAddPlace, onClose}) {
 
   const [name, setName] = React.useState('');
   const [link, setLink] = React.useState('');  
@@ -9,7 +9,7 @@ function AddPlacePopup(props) {
   React.useEffect(() => {
     setName('')
     setLink('')
-  }, [props.isOpen]); 
+  }, [isOpen]); 
 
   function handleChangeName(e) {
     setName(e.target.value);
@@ -22,7 +22,7 @@ function AddPlacePopup(props) {
   function handleSubmit(e) {
     e.preventDefault();
   
-    props.onAddPlace({
+    onAddPlace({
       name,
       link,
     });
@@ -33,8 +33,8 @@ function AddPlacePopup(props) {
     name='card' 
     title='Новое место' 
     buttonTitle='Создать' 
-    isOpen={props.isOpen} 
-    onClose={props.onClose}
+    isOpen={isOpen} 
+    onClose={onClose}
     onSubmit={handleSubmit}>
         <label className="form__field">
           <input
