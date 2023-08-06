@@ -12,4 +12,4 @@
 
 Ссылка на проект: 
 
-https://github.com/Hachatur4/mesto-react.git
+https://hachatur4.github.io/react-mesto-auth/
