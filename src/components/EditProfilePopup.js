@@ -12,7 +12,7 @@ function EditProfilePopup({onUpdateUser, isOpen, onClose}) {
   React.useEffect(() => {
     setName(currentUser.name);
     setDescription(currentUser.about);
-  }, [currentUser]); 
+  }, [currentUser, isOpen]); 
 
   function handleChangeName(e) {
     setName(e.target.value);
@@ -31,19 +31,13 @@ function EditProfilePopup({onUpdateUser, isOpen, onClose}) {
     });
   }
 
-  function handleOpenPopup(){
-    setName(currentUser.name);
-    setDescription(currentUser.about);
-    onClose()
-  }
-
   return (
     <PopupWithForm 
     name='profile' 
     title='Редактировать профиль' 
     buttonTitle='Сохранить' 
     isOpen={isOpen} 
-    onClose={handleOpenPopup}
+    onClose={onClose()}
     onSubmit={handleSubmit}>
         <label className="form__field">
           <input

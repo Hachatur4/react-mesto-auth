@@ -34,8 +34,9 @@ function App() {
   const [cards, setCards] = useState([]);
   const navigate = useNavigate()
 
-  const handleLogin = () => {
+  const handleLoginAndGetMail = (mail) => {
     setLoggedIn(true);
+    setUserEmail(mail)
   }
 
   useEffect(() => {
@@ -126,7 +127,7 @@ function App() {
   function handleCardDelete(card){
     api.deleteCard(card._id)
     .then((newCard) => {
-      setCards((state) => state.filter((c) => c._id === card._id));
+      setCards((state) => state.filter((c) => c._id !== card._id));
     })
     .catch((err)=> console.log(`catch: ${err}`))
   }
@@ -201,8 +202,7 @@ function App() {
           } />
           <Route path="/login" element={
             <Login
-            handleLogin={handleLogin}
-            userEmail={recordUsersMail}
+            handleLoginAndGetMail={handleLoginAndGetMail}
             />
           } />
           <Route path="*" element={loggedIn ? <Navigate to="/cards" replace /> : <Navigate to="/login" replace />} />
